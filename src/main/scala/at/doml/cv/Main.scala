@@ -1,6 +1,17 @@
 package at.doml.cv
 
-object Main extends App {
+import at.doml.cv.html.HtmlElement.String2HtmlElement
+import at.doml.cv.html.{Page, div, p}
 
-    println("TODO")
+object Main extends App with Page {
+
+    override val title = "Curriculum Vitae"
+
+    div {
+        p {
+            -"This is some test content"
+        }
+    }
+
+    render()
 }
