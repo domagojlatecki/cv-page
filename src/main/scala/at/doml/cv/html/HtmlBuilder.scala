@@ -6,14 +6,12 @@ import scala.collection.mutable.ListBuffer
 private[html] object HtmlBuilder {
 
     trait Node {
-
         def parent: Tree
     }
 
     abstract class Tree(val children: ListBuffer[Node]) extends Node
 
     case class Root(override val children: ListBuffer[Node]) extends Tree(children) {
-
         override def parent: Tree = this
     }
 
@@ -27,7 +25,6 @@ private[html] object HtmlBuilder {
 final class HtmlBuilder {
 
     private[html] val tree: Tree = Root(ListBuffer())
-
     private[html] var currentBranch: Tree = tree
 
     private[html] def startBranch(name: String, attributes: String = ""): Unit = {

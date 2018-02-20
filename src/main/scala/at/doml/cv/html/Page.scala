@@ -1,7 +1,5 @@
 package at.doml.cv.html
 
-import at.doml.cv.html.HtmlElement.String2HtmlElement
-
 trait Page {
 
     val title: String
@@ -21,7 +19,7 @@ trait Page {
 
     private def title(content: String)(implicit builder: HtmlBuilder): Unit = -s"""<title>$content</title>"""
 
-    private def body(implicit builder: HtmlBuilder): Unit = {
+    private def body()(implicit builder: HtmlBuilder): Unit = {
         builder.startBranch("body")
         builder.currentBranch.children ++= this.builder.tree.children
         builder.endBranch()
@@ -37,7 +35,7 @@ trait Page {
                 meta(charset = "utf-8")
                 title(title)
             }
-            body
+            body()
         }
 
         builder.print()
