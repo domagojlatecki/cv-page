@@ -12,11 +12,8 @@ trait Page {
     }
 
     private def html(content: => Unit)(implicit builder: HtmlBuilder): Unit = elem("html", content, builder)
-
     private def head(content: => Unit)(implicit builder: HtmlBuilder): Unit = elem("head", content, builder)
-
     private def meta(charset: String)(implicit builder: HtmlBuilder): Unit = -s"""<meta charset="$charset"/>"""
-
     private def title(content: String)(implicit builder: HtmlBuilder): Unit = -s"""<title>$content</title>"""
 
     private def body()(implicit builder: HtmlBuilder): Unit = {

@@ -19,11 +19,9 @@ private[html] object HtmlBuilder {
                       override val children: ListBuffer[Node]) extends Tree(children)
 
     case class Leaf(content: String, parent: Tree) extends Node
-
 }
 
 final class HtmlBuilder {
-
     private[html] val tree: Tree = Root(ListBuffer())
     private[html] var currentBranch: Tree = tree
 
@@ -35,7 +33,6 @@ final class HtmlBuilder {
     }
 
     private[html] def endBranch(): Unit = currentBranch = currentBranch.parent
-
     private[html] def createLeaf(content: String): Unit = currentBranch.children += Leaf(content, currentBranch)
 
     def print(indentLevel: Int = 0, indentStep: Int = 4): Unit = {
