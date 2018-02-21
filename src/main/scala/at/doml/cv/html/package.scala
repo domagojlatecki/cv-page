@@ -35,13 +35,13 @@ package object html {
             }
     }
 
-    sealed abstract class HtmlElement(val name: String, val attributes: Attributes) {
+    sealed abstract class HtmlElement(val attributes: Attributes) {
         type This <: HtmlElement
         def newLikeThis(attributes: Attributes): This
 
         protected[this] final def attributesToString: String =
-            if (attributes.nonEmpty) {
-                attributes.filter(_._2.nonEmpty)
+            if (this.attributes.nonEmpty) {
+                this.attributes.filter(_._2.nonEmpty)
                     .map(kv => s"""${kv._1.name}="${kv._2.get}"""")
                     .mkString(" ", ", ", "")
             } else {
@@ -49,47 +49,59 @@ package object html {
             }
     }
 
-    class HtmlBranchElement private(name: String, attributes: Attributes) extends HtmlElement(name, attributes) {
-        def this(name: String) = this(name, Map())
+    abstract class HtmlBranchElement protected[html](attributes: Attributes) extends HtmlElement(attributes) {
+        def this() = this(Map())
+        def productPrefix: String
+
         override final type This = HtmlBranchElement
-        override final def newLikeThis(attributes: Attributes): This = new HtmlBranchElement(this.name, attributes)
+        override final def newLikeThis(attributes: Attributes): This = new NamedBranchElement(productPrefix, attributes)
 
         final def apply(content: => Unit)(implicit builder: HtmlBuilder): Unit = {
-            builder.startBranch(this.name, attributesToString)
+            builder.startBranch(productPrefix, attributesToString)
             content
             builder.endBranch()
         }
     }
 
-    class HtmlLeafElement private(name: String, attributes: Attributes) extends HtmlElement(name, attributes) {
-        def this(name: String) = this(name, Map())
+    private class NamedBranchElement(name: String, attributes: Attributes) extends HtmlBranchElement(attributes) {
+        override def productPrefix: String = name
+    }
+
+    abstract class HtmlLeafElement protected[html](attributes: Attributes) extends HtmlElement(attributes) {
+        def this() = this(Map())
+        def productPrefix: String
+
         override final type This = HtmlLeafElement
-        override final def newLikeThis(attributes: Attributes): This = new HtmlLeafElement(this.name, attributes)
+        override final def newLikeThis(attributes: Attributes): This = new NamedLeafElement(productPrefix, attributes)
 
         final def unary_-(implicit builder: HtmlBuilder): Unit = {
-            builder.createLeaf(s"<$name$attributesToString/>") // TODO
+            builder.createLeaf(s"<$productPrefix$attributesToString/>") // TODO
         }
+    }
+
+    private class NamedLeafElement(name: String, attributes: Attributes) extends HtmlLeafElement(attributes) {
+        override def productPrefix: String = name
     }
 
     // branch elements
 
-    object h1 extends HtmlBranchElement("h1") with BasicHtmlAttributes
-    object h2 extends HtmlBranchElement("h2") with BasicHtmlAttributes
-    object h3 extends HtmlBranchElement("h3") with BasicHtmlAttributes
-    object h4 extends HtmlBranchElement("h4") with BasicHtmlAttributes
-    object h5 extends HtmlBranchElement("h5") with BasicHtmlAttributes
-    object h6 extends HtmlBranchElement("h6") with BasicHtmlAttributes
-    object div extends HtmlBranchElement("div") with BasicHtmlAttributes
-    object span extends HtmlBranchElement("span") with BasicHtmlAttributes
-    object p extends HtmlBranchElement("p") with BasicHtmlAttributes
-    object pre extends HtmlBranchElement("pre") with BasicHtmlAttributes
-    object a extends HtmlBranchElement("a") with BasicHtmlAttributes
-    object code extends HtmlBranchElement("code") with BasicHtmlAttributes
+    case object h1 extends HtmlBranchElement with BasicHtmlAttributes
+    case object h2 extends HtmlBranchElement with BasicHtmlAttributes
+    case object h3 extends HtmlBranchElement with BasicHtmlAttributes
+    case object h4 extends HtmlBranchElement with BasicHtmlAttributes
+    case object h5 extends HtmlBranchElement with BasicHtmlAttributes
+    case object h6 extends HtmlBranchElement with BasicHtmlAttributes
+    case object div extends HtmlBranchElement with BasicHtmlAttributes
+    case object span extends HtmlBranchElement with BasicHtmlAttributes
+    case object p extends HtmlBranchElement with BasicHtmlAttributes
+    case object pre extends HtmlBranchElement with BasicHtmlAttributes
+    case object a extends HtmlBranchElement with BasicHtmlAttributes
+    case object code extends HtmlBranchElement with BasicHtmlAttributes
 
     // leaf elements
 
-    object br extends HtmlLeafElement("br")
-    object img extends HtmlLeafElement("img") {
+    case object br extends HtmlLeafElement
+    case object img extends HtmlLeafElement {
         def apply(src: String = null): This = newLikeThis(Map('src -> Option(src)))
     }
 }
