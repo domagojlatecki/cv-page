@@ -6,7 +6,7 @@ package object html {
         def unary_-(implicit builder: HtmlBuilder): Unit = builder.createLeaf(string)
     }
 
-    private type Attributes = Map[Symbol, Option[String]]
+    type Attributes = Map[Symbol, Option[String]]
 
     trait BasicHtmlAttributes {
         self: HtmlElement =>
@@ -75,7 +75,7 @@ package object html {
         override final def newLikeThis(attributes: Attributes): This = new NamedLeafElement(productPrefix, attributes)
 
         final def unary_-(implicit builder: HtmlBuilder): Unit = {
-            builder.createLeaf(s"<$productPrefix$attributesToString/>") // TODO
+            builder.createLeaf(s"<$productPrefix$attributesToString/>")
         }
     }
 
