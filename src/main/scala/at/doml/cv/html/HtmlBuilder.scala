@@ -1,32 +1,34 @@
 package at.doml.cv.html
 
-import at.doml.cv.html.HtmlBuilder.{Branch, Leaf, Node, Root, Tree}
+import at.doml.cv.html.HtmlBuilder.{Branch, Leaf, Node, NodeWithChildren, Root}
 import scala.collection.mutable.ListBuffer
 
 private[html] object HtmlBuilder {
 
     trait Node {
-        def parent: Tree
+        def parent: NodeWithChildren
     }
 
-    abstract class Tree(val children: ListBuffer[Node]) extends Node
-
-    case class Root(override val children: ListBuffer[Node]) extends Tree(children) {
-        override def parent: Tree = this
+    trait NodeWithChildren extends Node {
+        val children: ListBuffer[Node]
     }
 
-    case class Branch(name: String, attributes: String, parent: Tree,
-                      override val children: ListBuffer[Node]) extends Tree(children)
+    case class Root(children: ListBuffer[Node] = ListBuffer()) extends NodeWithChildren {
+        def parent: NodeWithChildren = this
+    }
 
-    case class Leaf(content: String, parent: Tree) extends Node
+    case class Branch(name: String, attributes: String, parent: NodeWithChildren,
+                      children: ListBuffer[Node] = ListBuffer()) extends NodeWithChildren
+
+    case class Leaf(content: String, parent: NodeWithChildren) extends Node
 }
 
 final class HtmlBuilder {
-    private[html] val tree: Tree = Root(ListBuffer())
-    private[html] var currentBranch: Tree = tree
+    private[html] val tree: Root = Root()
+    private[html] var currentBranch: NodeWithChildren = tree
 
     private[html] def startBranch(name: String, attributes: String = ""): Unit = {
-        val newBranch = Branch(name, attributes, currentBranch, ListBuffer())
+        val newBranch = Branch(name, attributes, currentBranch)
 
         currentBranch.children += newBranch
         currentBranch = newBranch

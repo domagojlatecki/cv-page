@@ -11,18 +11,18 @@ package object html {
     trait BasicHtmlAttributes {
         self: HtmlElement =>
 
-        final def apply(`class`: String = null,
-                        id: String = null,
+        final def apply(id: String = null,
                         href: String = null,
-                        disabled: Boolean = false,
-                        hidden: Boolean = false): This = {
+                        classes: String = null,
+                        hidden: Boolean = false,
+                        disabled: Boolean = false): This = {
             self.newLikeThis(
                 Map(
-                    'class -> Option(`class`),
                     'id -> Option(id),
                     'href -> Option(href),
-                    'disabled -> someIfTrueElseNone(disabled, "disabled"),
-                    'hidden -> someIfTrueElseNone(hidden, "hidden")
+                    'class -> Option(classes),
+                    'hidden -> someIfTrueElseNone(hidden, "hidden"),
+                    'disabled -> someIfTrueElseNone(disabled, "disabled")
                 )
             )
         }
@@ -35,11 +35,11 @@ package object html {
             }
     }
 
-    sealed abstract class HtmlElement(val attributes: Attributes) {
+    sealed abstract class HtmlElement(private val attributes: Attributes) {
         type This <: HtmlElement
         def newLikeThis(attributes: Attributes): This
 
-        protected[this] final def attributesToString: String =
+        protected final def attributesToString: String =
             if (this.attributes.nonEmpty) {
                 this.attributes.filter(_._2.nonEmpty)
                     .map(kv => s"""${kv._1.name}="${kv._2.get}"""")
@@ -49,7 +49,7 @@ package object html {
             }
     }
 
-    abstract class HtmlBranchElement protected[html](attributes: Attributes) extends HtmlElement(attributes) {
+    abstract class HtmlBranchElement private[html](attributes: Attributes) extends HtmlElement(attributes) {
         def this() = this(Map())
         def productPrefix: String
 
@@ -63,11 +63,11 @@ package object html {
         }
     }
 
-    private class NamedBranchElement(name: String, attributes: Attributes) extends HtmlBranchElement(attributes) {
+    private final class NamedBranchElement(name: String, attributes: Attributes) extends HtmlBranchElement(attributes) {
         override def productPrefix: String = name
     }
 
-    abstract class HtmlLeafElement protected[html](attributes: Attributes) extends HtmlElement(attributes) {
+    abstract class HtmlLeafElement private[html](attributes: Attributes) extends HtmlElement(attributes) {
         def this() = this(Map())
         def productPrefix: String
 
@@ -79,7 +79,7 @@ package object html {
         }
     }
 
-    private class NamedLeafElement(name: String, attributes: Attributes) extends HtmlLeafElement(attributes) {
+    private final class NamedLeafElement(name: String, attributes: Attributes) extends HtmlLeafElement(attributes) {
         override def productPrefix: String = name
     }
 

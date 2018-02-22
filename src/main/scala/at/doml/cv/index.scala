@@ -6,7 +6,7 @@ object index extends Page {
 
     override val title = "Curriculum Vitae"
 
-    div(`class` = "a") {
+    div(classes = "a") {
         p {
             -"This is some test content"; -br
             -img(src = "abc")
